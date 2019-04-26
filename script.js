@@ -94,54 +94,29 @@ class ScanMe {
             let distX = left + newX - oldX;
             let distY = top + newY - oldY;
 
-            let intersects = this.scannerIntersects();
 
+            if (!this.scannerIntersects().left && event.movementX < 0) {
 
-            if (!intersects.left && newX < oldX) {
                 this.scanner.style.left = `${distX}px`;
 
-            } else {
-                console.log("не могу двигаться влево");
             }
 
-            if(!intersects.right && newX > oldX){
+            if(!this.scannerIntersects().right && event.movementX > 0){
+
                 this.scanner.style.left = `${distX}px`;
-            } else {
-                console.log("не могу двигаться вправо");
+
             }
 
-            if(!intersects.top && newY > oldY){
+            if(!this.scannerIntersects().top && event.movementY < 0){
+
                 this.scanner.style.top = `${distY}px`;
-            } else {
-                console.log("не могу двигаться вверх");
+
             }
 
-            if(!intersects.bottom && newY < oldY){
+            if(!this.scannerIntersects().bottom && event.movementY > 0){
+
                 this.scanner.style.top = `${distY}px`;
-            } else {
-                console.log("не могу двигаться вниз");
             }
-
-
-
-
-
-            //
-            // if (!intersects.horizontal) {
-            //     this.scanner.style.left = `${distX}px`;
-            //     console.log("могу двигаться по горизонтали");
-            // } else {
-            //
-            //     console.log("пересек край секции по горизонтали");
-            // }
-            //
-            // if (!intersects.vetrical) {
-            //     this.scanner.style.top = `${distY}px`;
-            //     console.log("могу двигаться по вертикали");
-            // } else {
-            //
-            //     console.log("пересек край секции по вертикали");
-            // }
         }
 
         this.setBgPosition();
@@ -187,7 +162,6 @@ class ScanMe {
 
         this.section.addEventListener("mousemove", (event) => {
             this.moveScanner(event);
-            console.log(this.scanner.offsetTop);
         });
 
         this.scanner.addEventListener("mouseout", (e) => {
