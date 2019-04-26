@@ -18,6 +18,8 @@ class ScanMe {
         this.child = {
             width: this.scanner.offsetWidth,
             height: this.scanner.offsetHeight,
+            top: 0,
+            left: 0
         };
     };
 
@@ -56,8 +58,10 @@ class ScanMe {
 
     scannerIntersects() {
         return {
-            horizontal: this.scanner.offsetLeft <= 0 || this.parent.width - (this.child.width + this.scanner.offsetLeft) <= 0,
-            vertical: this.scanner.offsetTop <= 0 || this.parent.height - (this.child.height + this.scanner.offsetTop) <= 0
+            left: this.scanner.offsetLeft <= 0,
+            right: this.parent.width - (this.child.width + this.scanner.offsetLeft) <= 0,
+            top: this.scanner.offsetTop <= 0,
+            bottom: this.parent.height - (this.child.height + this.scanner.offsetTop) <= 0
         }
     }
 
@@ -79,35 +83,75 @@ class ScanMe {
 
     moveScanner(event) {
         if (this.mousePressed) {
+            let top = this.child.top;
+            let left = this.child.left;
+
             let oldX = this.clickX;
             let oldY = this.clickY;
             let newX = event.x;
             let newY = event.y;
 
-            let distX = newX - oldX;
-            let distY = newY - oldY;
+            let distX = left + newX - oldX;
+            let distY = top + newY - oldY;
 
             let intersects = this.scannerIntersects();
 
-            if (!intersects.horizontal) {
+
+            if (!intersects.left && newX < oldX) {
                 this.scanner.style.left = `${distX}px`;
-                console.log("могу двигаться по горизонтали");
-            } else {
 
-                console.log("пересек край секции по горизонтали");
+            } else {
+                console.log("не могу двигаться влево");
             }
 
-            if (!intersects.vetrical) {
+            if(!intersects.right && newX > oldX){
+                this.scanner.style.left = `${distX}px`;
+            } else {
+                console.log("не могу двигаться вправо");
+            }
+
+            if(!intersects.top && newY > oldY){
                 this.scanner.style.top = `${distY}px`;
-                console.log("могу двигаться по вертикали");
             } else {
-
-                console.log("пересек край секции по вертикали");
+                console.log("не могу двигаться вверх");
             }
+
+            if(!intersects.bottom && newY < oldY){
+                this.scanner.style.top = `${distY}px`;
+            } else {
+                console.log("не могу двигаться вниз");
+            }
+
+
+
+
+
+            //
+            // if (!intersects.horizontal) {
+            //     this.scanner.style.left = `${distX}px`;
+            //     console.log("могу двигаться по горизонтали");
+            // } else {
+            //
+            //     console.log("пересек край секции по горизонтали");
+            // }
+            //
+            // if (!intersects.vetrical) {
+            //     this.scanner.style.top = `${distY}px`;
+            //     console.log("могу двигаться по вертикали");
+            // } else {
+            //
+            //     console.log("пересек край секции по вертикали");
+            // }
         }
 
         this.setBgPosition();
     };
+
+    //Записывает позицию сканнера на экране
+    storePosition(){
+        this.child.left = +this.scanner.style.left.replace("px", "");
+        this.child.top = +this.scanner.style.top.replace("px", "");
+    }
 
     //Добавляет обработчики событий при загрузке страницы
     addListeners() {
@@ -122,26 +166,28 @@ class ScanMe {
                 this.mousePressed = true;
                 this.calcClick(event);
 
-                console.log("нажал на сканнер");
-                console.log(`Мышь нажата на ${this.clickX} и ${this.clickY}`, this.mousePressed);
+                // console.log("нажал на сканнер");
+                // console.log(`Мышь нажата на ${this.clickX} и ${this.clickY}`, this.mousePressed);
             }
 
         });
 
         this.section.addEventListener("mouseup", () => {
-            this.mousePressed = false;
 
-            console.log(this.mousePressed, "мышь отпущена");
+            this.mousePressed = false;
+            this.storePosition();
+            // console.log(this.mousePressed, "мышь отпущена");
         });
 
         this.section.addEventListener("mouseout", () => {
             this.mousePressed = false;
 
-            console.log(this.mousePressed, "мышь вышла за пределы секции");
+            this.storePosition();
         });
 
         this.section.addEventListener("mousemove", (event) => {
             this.moveScanner(event);
+            console.log(this.scanner.offsetTop);
         });
 
         this.scanner.addEventListener("mouseout", (e) => {
@@ -155,6 +201,7 @@ class ScanMe {
 
     init() {
         this.addListeners();
+        this.storePosition();
         this.setBgPosition();
     }
 }
